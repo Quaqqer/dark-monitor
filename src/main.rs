@@ -3,7 +3,6 @@
 use portal_appearance::AppearanceConnection;
 
 pub mod color_scheme;
-pub mod daemon;
 pub mod portal_appearance;
 
 #[tokio::main]
