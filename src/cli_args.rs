@@ -15,8 +15,6 @@ pub enum CliCommand {
         default_as: Option<DarkLight>,
     },
     Monitor {
-        #[arg(long, default_value_t = false)]
-        quiet: bool,
         #[arg(long, value_enum)]
         default_as: Option<DarkLight>,
 
@@ -36,5 +34,9 @@ pub enum CliCommand {
     ToggleDarkMode {
         #[arg(long, value_enum, default_value_t=DarkLight::Light)]
         default_as: DarkLight,
+    },
+    Listen {
+        #[arg(long, value_enum)]
+        default_as: Option<DarkLight>,
     },
 }

@@ -26,17 +26,12 @@ async fn main() {
         }
         cli_args::CliCommand::Monitor {
             default_as,
-            quiet,
             on_default,
             on_light,
             on_dark,
         } => {
             let callback = async |preference: ColorScheme| {
                 let preference = preference.with_maybe_default_as(default_as.map(Into::into));
-
-                if !quiet {
-                    println!("{}", preference);
-                }
 
                 let run_command = |cmd: &str| {
                     let cmd = cmd.to_string();
@@ -72,6 +67,16 @@ async fn main() {
             let preference = FreedesktopColorSchemeReader::get_preference().await;
             let toggled = preference.into_dark_light(default_as).toggle();
             GSettings::set_color_scheme(toggled.into()).await;
+        }
+
+        cli_args::CliCommand::Listen { default_as } => {
+            let callback = async |preference: ColorScheme| {
+                println!("{}", preference.with_maybe_default_as(default_as));
+            };
+
+            callback(FreedesktopColorSchemeReader::get_preference().await).await;
+
+            FreedesktopColorSchemeReader::monitor_preference(callback).await;
         }
     }
 }
