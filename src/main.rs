@@ -1,5 +1,6 @@
 #![feature(async_closure, try_blocks, async_fn_traits)]
 
+use cs_writer::{ColorSchemeWriter, GSettings};
 use tokio::process::Command;
 
 use clap::Parser;
@@ -62,13 +63,15 @@ async fn main() {
 
             FreedesktopColorSchemeReader::monitor_preference(callback).await;
         }
+
         cli_args::CliCommand::SetColorScheme { preference } => {
-            todo!("Set preference {:?}", preference)
+            GSettings::set_color_scheme(preference).await;
         }
+
         cli_args::CliCommand::ToggleDarkMode { default_as } => {
             let preference = FreedesktopColorSchemeReader::get_preference().await;
             let toggled = preference.into_dark_light(default_as).toggle();
-            todo!("Toggle to {}", toggled);
+            GSettings::set_color_scheme(toggled.into()).await;
         }
     }
 }
