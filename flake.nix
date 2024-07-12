@@ -24,6 +24,8 @@
           overlays = [ rust-overlay.overlays.default ];
         };
 
+        cargoToml = builtins.fromTOML (builtins.readFile ./Cargo.toml);
+
         # Create our nightly rustPlatform
         rustPlatform = pkgs.makeRustPlatform {
           cargo = pkgs.rust-bin.selectLatestNightlyWith (toolchain: toolchain.minimal);
@@ -33,7 +35,7 @@
       {
         defaultPackage = rustPlatform.buildRustPackage {
           pname = "dark-monitor";
-          version = "0.1.0";
+          version = cargoToml.package.version;
 
           src = ./.;
 

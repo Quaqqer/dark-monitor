@@ -1,4 +1,6 @@
-#![feature(async_closure, try_blocks, async_fn_traits)]
+#![feature(async_closure, try_blocks, async_fn_traits, let_chains)]
+
+use std::process;
 
 use cs_writer::{ColorSchemeWriter, GSettings};
 use tokio::process::Command;
@@ -30,6 +32,13 @@ async fn main() {
             on_light,
             on_dark,
         } => {
+            if let Some(default_as) = default_as
+                && !on_default.is_empty()
+            {
+                eprintln!("Error: Interprets default as '{}' but commands are specified to run when changing to default", default_as);
+                process::exit(1);
+            }
+
             let callback = async |preference: ColorScheme| {
                 let preference = preference.with_maybe_default_as(default_as.map(Into::into));
 
@@ -59,8 +68,8 @@ async fn main() {
             FreedesktopColorSchemeReader::monitor_preference(callback).await;
         }
 
-        cli_args::CliCommand::SetColorScheme { preference } => {
-            GSettings::set_color_scheme(preference).await;
+        cli_args::CliCommand::SetColorScheme { color_scheme } => {
+            GSettings::set_color_scheme(color_scheme).await;
         }
 
         cli_args::CliCommand::ToggleDarkMode { default_as } => {
