@@ -1,10 +1,12 @@
 use clap::ValueEnum;
 
+use crate::cli_args::{CliColorScheme, CliDarkLight};
+
 #[derive(Clone, Copy, Debug, ValueEnum)]
 pub enum ColorScheme {
-    Default = 0,
-    Dark = 1,
-    Light = 2,
+    Default,
+    Dark,
+    Light,
 }
 
 #[derive(Clone, Copy, Debug, ValueEnum)]
@@ -89,6 +91,25 @@ impl From<DarkLight> for ColorScheme {
         match value {
             DarkLight::Dark => ColorScheme::Dark,
             DarkLight::Light => ColorScheme::Light,
+        }
+    }
+}
+
+impl From<CliDarkLight> for DarkLight {
+    fn from(value: CliDarkLight) -> Self {
+        match value {
+            CliDarkLight::Dark => DarkLight::Dark,
+            CliDarkLight::Light => DarkLight::Light,
+        }
+    }
+}
+
+impl From<CliColorScheme> for ColorScheme {
+    fn from(value: CliColorScheme) -> Self {
+        match value {
+            CliColorScheme::Default => ColorScheme::Default,
+            CliColorScheme::Dark => ColorScheme::Dark,
+            CliColorScheme::Light => ColorScheme::Light,
         }
     }
 }

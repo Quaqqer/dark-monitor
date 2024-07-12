@@ -33,6 +33,7 @@ async fn main() -> Result<()> {
             on_light,
             on_dark,
         } => {
+            let default_as = default_as.map(Into::into);
             if let Some(default_as) = default_as
                 && !on_default.is_empty()
             {
@@ -40,7 +41,7 @@ async fn main() -> Result<()> {
             }
 
             let callback = async |preference: ColorScheme| {
-                let preference = preference.with_maybe_default_as(default_as.map(Into::into));
+                let preference = preference.with_maybe_default_as(default_as);
 
                 let run_command = |cmd: &str| {
                     let cmd = cmd.to_string();
@@ -89,16 +90,17 @@ async fn main() -> Result<()> {
         }
 
         cli_args::CliCommand::SetColorScheme { color_scheme } => {
-            GSettings::set_color_scheme(color_scheme).await
+            GSettings::set_color_scheme(color_scheme.into()).await
         }
 
         cli_args::CliCommand::ToggleDarkMode { default_as } => {
             let preference = FreedesktopColorSchemeReader::get_preference().await?;
-            let toggled = preference.into_dark_light(default_as).toggle();
+            let toggled = preference.into_dark_light(default_as.into()).toggle();
             GSettings::set_color_scheme(toggled.into()).await
         }
 
         cli_args::CliCommand::Listen { default_as } => {
+            let default_as = default_as.map(Into::into);
             let callback = async |preference: ColorScheme| {
                 let mut stdout = std::io::stdout().lock();
                 write!(stdout, "{}", preference.with_maybe_default_as(default_as)).unwrap();

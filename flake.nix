@@ -38,12 +38,30 @@
 
           src = ./.;
 
-          cargoHash = "sha256-lR5cgbZQjkI/kSO+F6ltao2AScORCAqLNQVSlWNnemw=";
+          cargoHash = "sha256-/NC8AlIk+itdW+l1Ys5tjYkh3mVXeTYaKpyiPHma+l4=";
 
           meta = {
             buildInputs = [ pkgs.dbus ];
             nativeBuildInputs = [ pkgs.pkg-config ];
           };
+
+          nativeBuildInputs = [
+            pkgs.installShellFiles
+            pkgs.tree
+          ];
+
+          postInstall = ''
+            # Find build output directory
+            BUILD_OUT_DIR="target/*/release/build/${cargoToml.package.name}-*/out"
+
+            tree $BUILD_OUT_DIR
+            ls -l $BUILD_OUT_DIR
+
+            installShellCompletion --cmd dark-monitor \
+              --bash $BUILD_OUT_DIR/dark-monitor.bash \
+              --zsh $BUILD_OUT_DIR/_dark-monitor \
+              --fish $BUILD_OUT_DIR/dark-monitor.fish
+          '';
         };
       in
       {
