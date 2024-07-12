@@ -31,9 +31,8 @@
           cargo = pkgs.rust-bin.selectLatestNightlyWith (toolchain: toolchain.minimal);
           rustc = pkgs.rust-bin.selectLatestNightlyWith (toolchain: toolchain.minimal);
         };
-      in
-      {
-        packages.default = rustPlatform.buildRustPackage {
+
+        dark-monitor = rustPlatform.buildRustPackage {
           pname = "dark-monitor";
           version = cargoToml.package.version;
 
@@ -45,6 +44,12 @@
             buildInputs = [ pkgs.dbus ];
             nativeBuildInputs = [ pkgs.pkg-config ];
           };
+        };
+      in
+      {
+        packages = {
+          default = dark-monitor;
+          inherit dark-monitor;
         };
       }
     );

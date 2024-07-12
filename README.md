@@ -18,8 +18,8 @@ Listen to changes
 ```sh
 # Monitor color-scheme
 dark-monitor --default-as light \
-  --on-dark 'cp  ~/.config/kitty/themes/catppuccin-mocha.conf ~/.config/kitty/themes/theme.conf && pkill -SIGUSR1 --full kitty' \
-  --on-light 'cp ~/.config/kitty/themes/catppuccin-latte.conf ~/.config/kitty/themes/theme.conf && pkill -SIGUSR1 --full kitty'
+  --on-dark 'echo Switching to dark mode...' \
+  --on-light 'echo Switching to light mode...'
 
 # Listen to changes and print to stdout
 dark-monitor listen
@@ -31,6 +31,13 @@ dark-monitor get-color-scheme
 dark-monitor set-color-scheme dark
 dark-monitor toggle-dark-mode
 ```
+
+## Examples
+
+I've provided some examples in
+[`recipes/`](https://github.com/Quaqqer/dark-monitor/tree/trunk/recipes), if you
+find this tool useful and would like to share how you are using it, please make
+a pull request!
 
 ## Installation
 
