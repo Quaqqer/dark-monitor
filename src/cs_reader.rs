@@ -3,27 +3,27 @@ use std::ops::AsyncFn;
 use futures_util::StreamExt;
 use zbus::{MatchRule, MessageStream};
 
-use crate::color_scheme::ColorSchemePreference;
+use crate::color_scheme::ColorScheme;
 
-type Result<T> = std::result::Result<T, &'static str>;
+pub trait ColorSchemeReader {
+    /// Get the color scheme preference from the desktop
+    async fn get_preference() -> ColorScheme;
 
-#[derive(Clone)]
-pub struct AppearanceConnection {
-    connection: zbus::Connection,
+    /// Monitor the color scheme preference from the desktop
+    ///
+    /// * `f`: The callback for when the preference changes
+    async fn monitor_preference(f: impl AsyncFn(ColorScheme));
 }
 
-impl AppearanceConnection {
-    pub async fn connect() -> Self {
+pub struct FreedesktopColorSchemeReader {}
+
+impl ColorSchemeReader for FreedesktopColorSchemeReader {
+    async fn get_preference() -> ColorScheme {
         let connection = zbus::Connection::session()
             .await
-            .expect("Failed to connect to D-Bus sessiosion");
+            .expect("Failed to connect to D-Bus session");
 
-        Self { connection }
-    }
-
-    pub async fn get_preference(&self) -> Result<ColorSchemePreference> {
-        let msg = self
-            .connection
+        let msg = connection
             .call_method(
                 Some("org.freedesktop.portal.Desktop"),
                 "/org/freedesktop/portal/desktop",
@@ -34,19 +34,21 @@ impl AppearanceConnection {
             .await
             .expect("Failed to get preference");
 
-        let preference = ColorSchemePreference::try_from(
+        ColorScheme::try_from(
             msg.body()
                 .deserialize::<zbus::zvariant::Value>()
                 .expect("Could not deserialize color-scheme preference")
                 .downcast::<u32>()
                 .unwrap(),
         )
-        .unwrap();
-
-        Ok(preference)
+        .unwrap()
     }
 
-    pub async fn listen(&self, f: impl AsyncFn(ColorSchemePreference)) {
+    async fn monitor_preference(f: impl AsyncFn(ColorScheme)) {
+        let connection = zbus::Connection::session()
+            .await
+            .expect("Failed to connect to D-Bus sessiosion");
+
         let match_rule_res: std::result::Result<_, zbus::Error> = try {
             MatchRule::builder()
                 .interface("org.freedesktop.portal.Settings")?
@@ -58,7 +60,7 @@ impl AppearanceConnection {
         };
         let match_rule = match_rule_res.unwrap();
 
-        let mr = MessageStream::for_match_rule(match_rule, &self.connection, Some(5))
+        let mr = MessageStream::for_match_rule(match_rule, &connection, Some(5))
             .await
             .unwrap();
 
@@ -72,7 +74,7 @@ impl AppearanceConnection {
                 panic!("Unexpected return value");
             };
 
-            let pref = ColorSchemePreference::try_from(preference_u32).unwrap();
+            let pref = ColorScheme::try_from(preference_u32).unwrap();
 
             f(pref).await;
         })
