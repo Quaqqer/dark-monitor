@@ -33,7 +33,7 @@
         };
       in
       {
-        defaultPackage = rustPlatform.buildRustPackage {
+        packages.default = rustPlatform.buildRustPackage {
           pname = "dark-monitor";
           version = cargoToml.package.version;
 
