@@ -103,7 +103,7 @@ async fn main() -> Result<()> {
             let default_as = default_as.map(Into::into);
             let callback = async |preference: ColorScheme| {
                 let mut stdout = std::io::stdout().lock();
-                write!(stdout, "{}", preference.with_maybe_default_as(default_as)).unwrap();
+                write!(stdout, "{}\n", preference.with_maybe_default_as(default_as)).unwrap();
                 stdout.flush().unwrap();
             };
 
