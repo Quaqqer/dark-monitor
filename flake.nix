@@ -38,7 +38,7 @@
 
           src = ./.;
 
-          cargoHash = "sha256-/NC8AlIk+itdW+l1Ys5tjYkh3mVXeTYaKpyiPHma+l4=";
+          cargoHash = "sha256-5ZiawuWuPKPH+vJ5X1QI/TKUGPhyNBylO0wESKFse6s=";
 
           meta = {
             buildInputs = [ pkgs.dbus ];
