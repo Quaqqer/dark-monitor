@@ -17,13 +17,13 @@ fn main() -> Result<(), Error> {
     let cmd = CliArgs::command();
 
     let bash_path = generate_to(Bash, &mut cmd.clone(), "dark-monitor", outdir.clone())?;
-    println!("cargo::warning=bash completion generated: {bash_path:?}");
+    println!("cargo:warning=bash completion generated: {bash_path:?}");
 
     let zsh_path = generate_to(Zsh, &mut cmd.clone(), "dark-monitor", outdir.clone())?;
-    println!("cargo::warning=zsh completion generated: {zsh_path:?}");
+    println!("cargo:warning=zsh completion generated: {zsh_path:?}");
 
     let fish_path = generate_to(Fish, &mut cmd.clone(), "dark-monitor", outdir.clone())?;
-    println!("cargo::warning=fish completion generated: {fish_path:?}");
+    println!("cargo:warning=fish completion generated: {fish_path:?}");
 
     Ok(())
 }

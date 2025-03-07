@@ -1,5 +1,3 @@
-#![feature(async_closure, try_blocks, async_fn_traits, let_chains)]
-
 use anyhow::{bail, Context, Result};
 use cs_writer::{ColorSchemeWriter, GSettings};
 use std::io::Write;
@@ -34,13 +32,18 @@ async fn main() -> Result<()> {
             on_dark,
         } => {
             let default_as = default_as.map(Into::into);
-            if let Some(default_as) = default_as
-                && !on_default.is_empty()
-            {
-                bail!("Interprets default as '{default_as}' but commands are specified to run when changing to the default color-scheme");
+            match default_as {
+                Some(default_as) if !on_default.is_empty() => {
+                    bail!("Interprets default as '{default_as}' but commands are specified to run when changing to the default color-scheme");
+                }
+                _ => {}
             }
 
-            let callback = async |preference: ColorScheme| {
+            let on_default = &on_default;
+            let on_dark = &on_dark;
+            let on_light = &on_light;
+
+            let callback = |preference: ColorScheme| async move {
                 let preference = preference.with_maybe_default_as(default_as);
 
                 let run_command = |cmd: &str| {
@@ -101,9 +104,9 @@ async fn main() -> Result<()> {
 
         cli_args::CliCommand::Listen { default_as } => {
             let default_as = default_as.map(Into::into);
-            let callback = async |preference: ColorScheme| {
+            let callback = |preference: ColorScheme| async move {
                 let mut stdout = std::io::stdout().lock();
-                write!(stdout, "{}\n", preference.with_maybe_default_as(default_as)).unwrap();
+                writeln!(stdout, "{}", preference.with_maybe_default_as(default_as)).unwrap();
                 stdout.flush().unwrap();
             };
 
