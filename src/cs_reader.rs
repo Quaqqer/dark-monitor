@@ -1,4 +1,4 @@
-use std::ops::AsyncFn;
+use std::future::Future;
 
 use anyhow::{bail, Context, Result};
 use futures_util::StreamExt;
@@ -13,7 +13,10 @@ pub trait ColorSchemeReader {
     /// Monitor the color scheme preference from the desktop
     ///
     /// * `f`: The callback for when the preference changes
-    async fn monitor_preference(f: impl AsyncFn(ColorScheme)) -> Result<()>;
+    async fn monitor_preference<F, T>(f: F) -> Result<()>
+    where
+        F: Fn(ColorScheme) -> T,
+        T: Future<Output = ()>;
 }
 
 pub struct FreedesktopColorSchemeReader {}
@@ -57,7 +60,11 @@ Some example providers are:
         })
     }
 
-    async fn monitor_preference(f: impl AsyncFn(ColorScheme)) -> Result<()> {
+    async fn monitor_preference<F, T>(f: F) -> Result<()>
+    where
+        F: Fn(ColorScheme) -> T,
+        T: Future<Output = ()>,
+    {
         let connection = zbus::Connection::session()
             .await
             .with_context(|| "Failed to connect to user D-Bus session, is D-Bus running?")?;
